@@ -14,7 +14,7 @@ type User struct {
 	Role         *string `gorm:"type:ENUM('user', 'admin');not null;default:'user'"`
 	CompanyID    int
 	Company      Company
-	Courses      []Course `gorm:"foreignKey:UserID;"`
+	Courses      []Course
 }
 
 func UserAutoMigrate(db *gorm.DB) {

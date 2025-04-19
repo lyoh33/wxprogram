@@ -4,6 +4,8 @@ go 1.23.5
 
 require github.com/gin-gonic/gin v1.10.0
 
+require github.com/mattn/go-sqlite3 v1.14.22 // indirect
+
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
@@ -38,5 +40,6 @@ require (
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
+	gorm.io/driver/sqlite v1.5.7
 	gorm.io/gorm v1.25.12 // indirect
 )

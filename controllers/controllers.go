@@ -4,7 +4,6 @@ import (
 	"mio/gin-example/models"
 	"net/http"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -16,24 +15,6 @@ import (
 )
 
 var DB *gorm.DB
-
-func AddCompany(c *gin.Context) {
-	name := c.PostForm("name")
-	models.CreateCompany(DB, name)
-}
-
-func GetUser(c *gin.Context) {
-	id := c.Params.ByName("id")
-	_id, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
-		log.Errorln(err)
-		return
-	}
-	models.FindUserByID(DB, uint(_id))
-}
 
 func Signup(c *gin.Context) {
 	type User struct {
@@ -123,47 +104,6 @@ func Login(c *gin.Context) {
 	})
 }
 
-func CreateCourse(c *gin.Context) {
-	type CreateCourseRequest struct {
-		Name           string `form:"name" binding:"required,max=255"`
-		Introduction   string `form:"introduction" binding:"max=255"`
-		PrefaceUrl     string `form:"preface_url" binding:"max=255"`
-		EnrollmentCode string `form:"enrollment_code" binding:"max=64"`
-		IsOpen         bool   `form:"is_open"`
-	}
-	var req CreateCourseRequest
-	if err := c.ShouldBind(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		log.Errorln(err)
-		return
-	}
-	trimRequestFields(&req)
-	courseModel := models.Course{
-		Name: req.Name,
-	}
-	if req.Introduction != "" {
-		courseModel.Introduction = &req.Introduction
-	}
-	if req.PrefaceUrl != "" {
-		courseModel.PrefaceUrl = &req.PrefaceUrl
-	}
-	if req.EnrollmentCode != "" {
-		courseModel.EnrollmentCode = &req.EnrollmentCode
-	}
-	courseModel.IsOpen = req.IsOpen
-
-	err := models.CreateCourse(DB, courseModel)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
-		log.Errorln(err)
-		return
-	}
-}
-
 func trimRequestFields(req interface{}) {
 	val := reflect.ValueOf(req).Elem()
 
@@ -186,3 +126,4 @@ func trimRequestFields(req interface{}) {
 		}
 	}
 }
+

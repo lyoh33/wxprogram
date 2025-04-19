@@ -3,15 +3,18 @@ package models
 import "gorm.io/gorm"
 
 type Company struct {
-	ID   int    `gorm:"primaryKey"`
-	Name string `gorm:"type:varchar(50);not null"`
+	gorm.Model
+	Name        string  `gorm:"type:varchar(50);not null;uniqueIndex" json:"name"`
+	Description *string `gorm:"type:text" json:"description,omitempty"`
+	Department  *string `gorm:"type:varchar(50)" json:"department,omitempty"`
 }
 
-func CreateCompany(db *gorm.DB, name string) {
+func CreateCompany(db *gorm.DB, company Company) error {
 	// err := db.Migrator().CreateTable(&Company{})
 	err := db.AutoMigrate(&Company{})
 	if err != nil {
 		panic(err)
 	}
-	db.Create(&Company{Name: name})
+	result := db.Create(company)
+	return result.Error
 }

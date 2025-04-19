@@ -6,7 +6,6 @@ import (
 	"mio/gin-example/controllers"
 	"mio/gin-example/middlewares"
 	"mio/gin-example/models"
-	"net/http"
 	"os"
 	"unicode"
 
@@ -14,48 +13,9 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	log "github.com/sirupsen/logrus"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
-
-type Article struct {
-	Id      string `json:"id"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
-}
-
-var articles = []Article{
-	{Id: "0", Title: "ab", Content: "hoiadoawdadl;am"},
-	{Id: "1", Title: "dwq", Content: "sad213ewq"},
-	{Id: "2", Title: "xc", Content: "zxchtrewsfas"},
-}
-
-func GetArticles(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, articles)
-}
-
-func PostArticle(c *gin.Context) {
-	var article Article
-	if err := c.BindJSON(&article); err != nil {
-		fmt.Println(err)
-		return
-	}
-	articles = append(articles, article)
-	c.IndentedJSON(http.StatusOK, articles)
-}
-
-func GetArticle(c *gin.Context) {
-	id := c.Param("id")
-
-	for _, article := range articles {
-		if article.Id == id {
-			c.IndentedJSON(http.StatusOK, article)
-			return
-		}
-	}
-
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "article not found"})
-}
 
 func verifyPassword(s string) (fiveOrMore, number, upper, special bool, err error) {
 	letters := 0
@@ -115,8 +75,9 @@ func InitLogrus() {
 }
 
 func main() {
-	dsn := "mio@tcp(146.56.220.190:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	// dsn := "mio@tcp(146.56.220.190:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "test.db"
+	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -141,10 +102,32 @@ func main() {
 
 	admin := r.Group("/v1/admin")
 	admin.Use(middlewares.AdminRequired)
-	admin.GET("/user/:id", controllers.GetUser)
-	admin.POST("/course", controllers.CreateCourse)
 
-	r.POST("/v1/company", controllers.AddCompany)
+	admin.GET("/company/:id", controllers.GetCompany)
+	admin.GET("/company", controllers.GetCompanies)
+	admin.POST("/company", controllers.CreateCompany)
+	admin.PUT("/company/:id", controllers.UpdateCompany)
+	admin.DELETE("company/:id", controllers.DeleteCompany)
+
+	admin.GET("/user/:id", controllers.GetUser)
+	admin.GET("/user", controllers.GetUsers)
+	admin.PUT("/user/:id", controllers.UpdateUser)
+	admin.DELETE("/user/:id", controllers.DeleteUser)
+
+	admin.GET("/course/:id", controllers.GetCourse)
+	admin.POST("/course", controllers.CreateCourse)
+	admin.PUT("/course/:id", controllers.UpdateCourse)
+	admin.DELETE("/course:id", controllers.DeleteCourse)
+
+	admin.GET("/course/video", controllers.GetVideos)
+	admin.GET("/course/video/:id", controllers.GetVideo)
+	admin.POST("/course/video", controllers.CreateVideo)
+	admin.PUT("/course/video/:id", controllers.UpdateVideo)
+
+	admin.POST("/question_bank", controllers.CreateQuestionBank)
+	admin.GET("/question_bank", controllers.GetQuestionBanks)
+
+
 	r.POST("/v1/signup", controllers.Signup)
 	r.POST("/v1/login", controllers.Login)
 	r.Run() // 监听并在 0.0.0.0:8080 上启动服务
