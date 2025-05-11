@@ -153,14 +153,14 @@ func GetUsers(c *gin.Context) {
 func UpdateUser(c *gin.Context) {
 	userID := c.Param("id")
 
-	// 1. 获取现有用户数据
+	// 获取现有用户数据
 	var existingUser models.User
 	if err := DB.First(&existingUser, userID).Error; err != nil {
 		handleUserError(c, err)
 		return
 	}
 
-	// 2. 解析请求体
+	// 解析请求体
 	var updateData struct {
 		Name     *string `json:"name" validate:"omitempty,min=2,max=50"`
 		Email    *string `json:"email" validate:"omitempty,email"`
@@ -174,13 +174,13 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	// 3. 验证数据
+	// 验证数据
 	if err := validator.New().Struct(updateData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// 4. 构建更新字段映射
+	// 构建更新字段映射
 	updates := make(map[string]any)
 	if updateData.Name != nil {
 		updates["name"] = *updateData.Name
@@ -206,12 +206,10 @@ func UpdateUser(c *gin.Context) {
 		updates["token_version"] = existingUser.TokenVersion + 1 // 令旧token失效
 	}
 	if updateData.Role != nil {
-		// 添加角色修改权限检查（示例）
-		// if !isAdmin(c) { ... }
 		updates["role"] = *updateData.Role
 	}
 
-	// 5. 执行更新
+	// 执行更新
 	if err := DB.Model(&existingUser).Updates(updates).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "update failed"})
 		return
@@ -225,18 +223,18 @@ func DeleteUser(c *gin.Context) {
 
 	// 使用事务保证数据一致性
 	err := DB.Transaction(func(tx *gorm.DB) error {
-		// 1. 检查用户存在性
+		// 检查用户存在性
 		var user models.User
 		if err := tx.First(&user, userID).Error; err != nil {
 			return err
 		}
 
-		// 2. 删除关联课程
+		// 删除关联课程
 		if err := tx.Model(&user).Association("Courses").Delete(); err != nil {
 			return err
 		}
 
-		// 3. 执行软删除
+		// 执行软删除
 		if err := tx.Delete(&user).Error; err != nil {
 			return err
 		}

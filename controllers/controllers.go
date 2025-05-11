@@ -127,3 +127,21 @@ func trimRequestFields(req interface{}) {
 	}
 }
 
+func generateJWT(user models.User) (any, any) {
+	userInDB := models.FindUSerByEmail(DB, user.Email)
+	if userInDB.ID == 0 {
+		return nil, "no this user"
+	}
+	t, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": userInDB.ID,
+		// "pwd": userInDB.Password,
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"rol": userInDB.Role,
+		"ver": userInDB.TokenVersion + 1,
+	}).SignedString([]byte("ygredgds"))
+	if err != nil {
+		return nil, err
+	}
+	models.Refresh(DB, userInDB.ID, userInDB.TokenVersion+1)
+	return t, nil
+}

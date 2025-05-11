@@ -129,6 +129,7 @@ func main() {
 
 
 	r.POST("/v1/signup", controllers.Signup)
-	r.POST("/v1/login", controllers.Login)
+	r.POST("/v1/login", controllers.HandleLogin)
+	r.GET("/course/:id", controllers.GetCourse)
 	r.Run() // 监听并在 0.0.0.0:8080 上启动服务
 }

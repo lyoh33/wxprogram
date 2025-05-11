@@ -15,6 +15,7 @@ type User struct {
 	CompanyID    int
 	Company      Company
 	Courses      []Course
+	Status       uint //是否通过审核，0为不通过，1为通过
 }
 
 func UserAutoMigrate(db *gorm.DB) {
