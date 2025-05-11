@@ -9,11 +9,11 @@ type Course struct {
 	Name            string       `gorm:"type:varchar(100);not null;uniqueIndex"` // 课程名称（唯一）
 	Description     *string      `gorm:"type:text"`                              // 课程简介（可选）
 	CoverImage      *string      `gorm:"type:varchar(255)"`                      // 课程封面URL（可选）
-	Units           []CourseUnit // 课程单元列表
-	EnrollmentCode  string       `gorm:"type:varchar(50);not null"`             // 报名验证码
-	IsOpen          bool         `gorm:"default:false"`                         // 课程开放状态
-	EnrollmentCount uint         `gorm:"default:0;check:enrollment_count >= 0"` // 报名人数统计
-	CompletionCount uint         `gorm:"default:0;check:completion_count >= 0"` // 完成人数统计
+	Units           []CourseUnit `gorm:"foreignKey:CourseID"`                    // 课程单元列表
+	EnrollmentCode  string       `gorm:"type:varchar(50);not null"`              // 报名验证码
+	IsOpen          bool         `gorm:"default:false"`                          // 课程开放状态
+	EnrollmentCount uint         `gorm:"default:0;check:enrollment_count >= 0"`  // 报名人数统计
+	CompletionCount uint         `gorm:"default:0;check:completion_count >= 0"`  // 完成人数统计
 
 	Exams []Exam
 }
