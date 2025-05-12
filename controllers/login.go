@@ -68,11 +68,10 @@ func HandleLogin(c *gin.Context) {
 	}
 
 	// 更新最后登录时间
-	DB.Model(&user).Update("last_login", time.Now())
+	models.Refresh(DB, user.ID, user.TokenVersion+1)
 
 	c.JSON(http.StatusOK, gin.H{
 		"token":    token,
-		"is_admin": user.Role,
 		"user_id":  user.ID,
 	})
 }
