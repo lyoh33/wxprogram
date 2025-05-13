@@ -72,7 +72,7 @@ func IsExpired(claims *CustomClaims) bool {
 }
 
 type CustomClaims struct {
-	Sub uint   `json:"sub"`
+	Sub uint    `json:"sub"`
 	Exp int64  `json:"exp"`
 	Rol string `json:"rol"`
 	Ver string `json:"ver"`
@@ -92,6 +92,7 @@ func parseToken(tokenString string) (*CustomClaims, error) {
 
 	// 处理解析错误
 	if err != nil {
+		log.Printf("error when parsing: %v", tokenString)
 		return nil, fmt.Errorf("failed to parse token: %v", err)
 	}
 

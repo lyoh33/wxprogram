@@ -16,40 +16,40 @@ import (
 
 var DB *gorm.DB
 
-func Signup(c *gin.Context) {
-	type User struct {
-		Name     string `form:"username" binding:"required,min=3,max=10"`
-		Email    string `form:"email" binding:"required,email"`
-		Password string `form:"password" binding:"required,password"`
-		Company  string `form:"company" binding:"oneof=baidu google tencent"`
-	}
-	var user User
-	if err := c.ShouldBind(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err,
-		})
-		log.Errorln(err)
-		return
-	}
-	u := models.FindUSerByEmail(DB, user.Email)
-	if u.ID != 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "email has been used",
-		})
-		log.Errorln("email has been used: ", user.Email)
-		return
-	}
+// func Signup(c *gin.Context) {
+// 	type User struct {
+// 		Name     string `form:"username" binding:"required,min=3,max=10"`
+// 		Email    string `form:"email" binding:"required,email"`
+// 		Password string `form:"password" binding:"required,password"`
+// 		Company  string `form:"company" binding:"oneof=baidu google tencent"`
+// 	}
+// 	var user User
+// 	if err := c.ShouldBind(&user); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"error": err,
+// 		})
+// 		log.Errorln(err)
+// 		return
+// 	}
+// 	u := models.FindUSerByEmail(DB, user.Email)
+// 	if u.ID != 0 {
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"error": "email has been used",
+// 		})
+// 		log.Errorln("email has been used: ", user.Email)
+// 		return
+// 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 12)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
-		log.Errorln(err)
-		return
-	}
-	models.CreateUser(DB, user.Name, user.Email, string(hash), user.Company)
-}
+// 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 12)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{
+// 			"error": err,
+// 		})
+// 		log.Errorln(err)
+// 		return
+// 	}
+// 	models.CreateUser(DB, user.Name, user.Email, string(hash), user.Company)
+// }
 
 func Login(c *gin.Context) {
 	type User struct {

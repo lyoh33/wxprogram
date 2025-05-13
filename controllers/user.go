@@ -56,7 +56,7 @@ func GetUser(c *gin.Context) {
 		Name:      user.Name,
 		Email:     user.Email,
 		Age:       user.Age,
-		Role:      *user.Role,
+		Role:      user.Role,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}

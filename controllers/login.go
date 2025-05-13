@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 // 验证码缓存
@@ -27,37 +29,68 @@ func HandleLogin(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("请求解析失败: %v", err) // 添加日志
 		c.JSON(http.StatusBadRequest, gin.H{"error": "无效请求"})
 		return
 	}
+	log.Printf("请求参数: %v", req) // 添加日志
 
 	// 查找用户
 	var user models.User
 	if err := DB.Where("phone = ?", req.Phone).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "用户未注册"})
-		return
+		if err == gorm.ErrRecordNotFound {
+			userInput := &models.User{
+				Name:      "张三",
+				Phone:     "123123123",
+				Email:     "zhangsan@example.com",
+				Password:  "123",
+				Role:      "user",
+				CompanyID: 1,
+				Status:    true,
+			}
+			hash, err := bcrypt.GenerateFromPassword([]byte(userInput.Password), 12)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": err,
+				})
+				log.Errorln(err)
+				return
+			}
+			userInput.Password = string(hash)
+			models.CreateUser(DB, userInput)
+			log.Printf("用户注册成功: %s", req.Phone) // 添加日志
+			return
+		}
+		// c.JSON(http.StatusUnauthorized, gin.H{"error": "用户未注册"})
 	}
 
 	// 检查审核状态
-	if user.Status != 1 {
+	if user.Status != true {
 		c.JSON(http.StatusForbidden, gin.H{"error": "账号未通过审核"})
 		return
 	}
 
 	// 验证登录方式
-	if req.Code != "" {
-		if !verifyCode(req.Phone, req.Code) {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "验证码错误或已过期"})
-			return
-		}
-	} else if req.Password != "" {
+	// if req.Code != "" {
+	// 	if !verifyCode(req.Phone, req.Code) {
+	// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "验证码错误或已过期"})
+	// 		return
+	// 	}
+	// } else if req.Password != "" {
+	// 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+	// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "密码错误"})
+	// 		return
+	// 	}
+	// } else {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "请选择登录方式"})
+	// 	return
+	// }
+	if req.Password != "" {
 		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "密码错误"})
+			log.Printf("密码错误: %s", req.Phone) // 添加日志
 			return
 		}
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请选择登录方式"})
-		return
 	}
 
 	// 生成JWT
@@ -71,8 +104,8 @@ func HandleLogin(c *gin.Context) {
 	models.Refresh(DB, user.ID, user.TokenVersion+1)
 
 	c.JSON(http.StatusOK, gin.H{
-		"token":    token,
-		"user_id":  user.ID,
+		"token":   token,
+		"user_id": user.ID,
 	})
 }
 

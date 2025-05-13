@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -80,6 +81,7 @@ func GetCompanies(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": result.Error,
 		})
+		log.Printf("查询公司失败: %v", result.Error)
 		return
 	}
 

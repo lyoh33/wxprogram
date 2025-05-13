@@ -121,14 +121,13 @@ func main() {
 
 	admin.GET("/course/video", controllers.GetVideos)
 	admin.GET("/course/video/:id", controllers.GetVideo)
-	admin.POST("/course/video", controllers.CreateVideo)
+	// admin.POST("/course/video", controllers.CreateVideo)
 	admin.PUT("/course/video/:id", controllers.UpdateVideo)
 
 	admin.POST("/question_bank", controllers.CreateQuestionBank)
 	admin.GET("/question_bank", controllers.GetQuestionBanks)
 
-
-	r.POST("/v1/signup", controllers.Signup)
+	// r.POST("/v1/signup", controllers.Signup)
 	r.POST("/v1/login", controllers.HandleLogin)
 	r.GET("/course/:id", controllers.GetCourse)
 	r.Run() // 监听并在 0.0.0.0:8080 上启动服务

@@ -105,33 +105,33 @@ type CreateVideoRequest struct {
 // @Param body body CreateVideoRequest true "视频信息"
 // @Success 201 {object} models.Video
 // @Router /admin/course/video [post]
-func CreateVideo(c *gin.Context) {
-	var req CreateVideoRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+// func CreateVideo(c *gin.Context) {
+// 	var req CreateVideoRequest
+// 	if err := c.ShouldBindJSON(&req); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
 
-	video := models.Video{
-		CourseID:    req.CourseID,
-		UnitID:      req.UnitID,
-		Title:       req.Title,
-		URL:         req.URL,
-		Duration:    req.Duration,
-		Description: req.Description,
-	}
+// 	video := models.Video{
+// 		CourseID:    req.CourseID,
+// 		UnitID:      req.UnitID,
+// 		Title:       req.Title,
+// 		URL:         req.URL,
+// 		Duration:    req.Duration,
+// 		Description: req.Description,
+// 	}
 
-	if err := DB.Create(&video).Error; err != nil {
-		if isDuplicateError(err) {
-			c.JSON(http.StatusConflict, gin.H{"error": "同课程下视频标题不能重复"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "创建视频失败"})
-		return
-	}
+// 	if err := DB.Create(&video).Error; err != nil {
+// 		if isDuplicateError(err) {
+// 			c.JSON(http.StatusConflict, gin.H{"error": "同课程下视频标题不能重复"})
+// 			return
+// 		}
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "创建视频失败"})
+// 		return
+// 	}
 
-	c.JSON(http.StatusCreated, video)
-}
+// 	c.JSON(http.StatusCreated, video)
+// }
 
 // UpdateVideoRequest 更新视频请求体
 type UpdateVideoRequest struct {

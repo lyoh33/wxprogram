@@ -39,9 +39,9 @@ func CreateCourse(c *gin.Context) {
 
 	// 转换输入到模型
 	course := models.Course{
-		Name:           input.Name,
-		Description:    input.Description,
-		CoverImage:     input.CoverImage,
+		Name: input.Name,
+		// Description:    input.Description,
+		// CoverImage:     input.CoverImage,
 		EnrollmentCode: input.EnrollmentCode,
 		IsOpen:         input.IsOpen,
 	}
@@ -51,7 +51,7 @@ func CreateCourse(c *gin.Context) {
 	for _, u := range input.Units {
 		units = append(units, models.CourseUnit{
 			UnitName: u.UnitName,
-			Position: u.Position,
+			Order:    u.Position,
 		})
 	}
 	course.Units = units
@@ -130,13 +130,13 @@ func UpdateCourse(c *gin.Context) {
 		course.Name = *input.Name
 	}
 
-	if input.Description != nil {
-		course.Description = input.Description
-	}
+	// if input.Description != nil {
+	// 	course.Description = input.Description
+	// }
 
-	if input.CoverImage != nil {
-		course.CoverImage = input.CoverImage
-	}
+	// if input.CoverImage != nil {
+	// 	course.CoverImage = input.CoverImage
+	// }
 
 	if input.EnrollmentCode != nil {
 		course.EnrollmentCode = *input.EnrollmentCode
@@ -175,5 +175,3 @@ func DeleteCourse(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "课程删除成功"})
 }
-
-
